@@ -7,9 +7,18 @@ import compiler.exception.LexicalException;
 import compiler.lexical.token.InputString;
 import compiler.lexical.token.Token;
 
+/** 
+ * Class that tokenize c source code using DFA.
+ * 
+ * @date 2020.05.05
+ * @author SimHongSub
+ * @version 1.0
+ */
 public class Lexer {
-	
-	//private HashMap<TokenName, String> regEx;
+	/**
+	 * result - List variable to store tokenized tokens.
+	 * (*)DFA - DFA object for each type(*)
+	 */
 	private List<Token> result;
 	private DFA variableDFA;
 	private DFA integerDFA;
@@ -33,176 +42,89 @@ public class Lexer {
 		result = new ArrayList<Token>();
 	}
 	
+	/**
+	 * The get method to returns classified token list.
+	 * 
+	 * @return tokenName
+	 */
 	public List<Token> getTokens(){
 		return result;
 	}
 	
+	/**
+	 * Method to tokenize each token in source using DFA.
+	 * 
+	 * @param source - InputString object where input c source file content is stored
+	 * @exception LexicalException.
+	 */
 	public void tokenize(InputString source) throws LexicalException {
 		while(source.getContentString().length() > 0) {
-			if(whitespaceDFA.match(source)) {
-				String s = source.getContentString();
+			if(whitespaceDFA.match(source, result)) {
+				/* whitespace check */
+				tokenProcessing("whitespace", source);
 				
-				s = s.substring(source.getNextPosition());
+			}else if(identifierDFA.match(source, result)) {
+				/* identifier check */
+				tokenProcessing("ID", source);
 				
-				source.setContentString(s);
-			}else if(identifierDFA.match(source)) {
-				String s = source.getContentString();
+			}else if(variableDFA.match(source, result)) {
+				/* variable check */
+				tokenProcessing("variable", source);
 				
-				Token token = new Token("ID", s.substring(0, source.getNextPosition()));
-				result.add(token);
+			}else if(statementDFA.match(source, result)) {
+				/* statement check */
+				tokenProcessing("statement", source);
 				
-				s = s.substring(source.getNextPosition());
+			}else if(parenDFA.match(source, result)) {
+				/* paren check */
+				tokenProcessing("paren", source);
 				
-				source.setContentString(s);
-			}else if(variableDFA.match(source)) {
-				String s = source.getContentString();
+			}else if(separateDFA.match(source, result)) {
+				/* separate check */
+				tokenProcessing("COMMA", source);
 				
-				Token token = new Token(s.substring(0, source.getNextPosition()).toUpperCase(), s.substring(0, source.getNextPosition()));
-				result.add(token);
+			}else if(blockDFA.match(source, result)) {
+				/* block check */
+				tokenProcessing("block", source);
 				
-				s = s.substring(source.getNextPosition());
+			}else if(assignmentDFA.match(source, result)) {
+				/* assignment check */
+				tokenProcessing("ASSIGN", source);
 				
-				source.setContentString(s);
-			}else if(statementDFA.match(source)) {
-				String s = source.getContentString();
+			}else if(stringDFA.match(source, result)) {
+				/* string check */
+				tokenProcessing("LITERAL", source);
 				
-				Token token = new Token(s.substring(0, source.getNextPosition()).toUpperCase(), s.substring(0, source.getNextPosition()));
-				result.add(token);
+			}else if(floatDFA.match(source, result)) {
+				/* float check */
+				tokenProcessing("FLOAT", source);
 				
-				s = s.substring(source.getNextPosition());
+			}else if(integerDFA.match(source, result)) {
+				/* integer check */
+				tokenProcessing("INT", source);
 				
-				source.setContentString(s);
-			}else if(parenDFA.match(source)) {
-				String s = source.getContentString();
-				Token token;
+			}else if(booleanDFA.match(source, result)) {
+				/* boolean check */
+				tokenProcessing("BOOL", source);
 				
-				if(s.substring(0, source.getNextPosition()).equals("(")) {
-					token = new Token("LPAREN", s.substring(0, source.getNextPosition()));
-				}else {
-					token = new Token("RPAREN", s.substring(0, source.getNextPosition()));
-				}
+			}else if(terminateDFA.match(source, result)) {
+				/* terminate check */
+				tokenProcessing("SEMICOLON", source);
 				
-				result.add(token);
+			}else if(arithmeticDFA.match(source, result)) {
+				/* arithmetic check */
+				tokenProcessing("arithmetic", source);
 				
-				s = s.substring(source.getNextPosition());
+			}else if(comparisonDFA.match(source, result)) {
+				/* comparison check */
+				tokenProcessing("COMPARISON", source);
 				
-				source.setContentString(s);
-			}else if(separateDFA.match(source)) {
-				String s = source.getContentString();
+			}else if(bitwiseDFA.match(source, result)) {
+				/* whitespace check */
+				tokenProcessing("BITWISE", source);
 				
-				Token token = new Token("COMMA", s.substring(0, source.getNextPosition()));
-				result.add(token);
-				
-				s = s.substring(source.getNextPosition());
-				
-				source.setContentString(s);
-			}else if(blockDFA.match(source)) {
-				String s = source.getContentString();
-				Token token;
-				
-				if(s.substring(0, source.getNextPosition()).equals("{")) {
-					token = new Token("LBLOCK", s.substring(0, source.getNextPosition()));
-				}else {
-					token = new Token("RBLOCK", s.substring(0, source.getNextPosition()));
-				}
-				
-				result.add(token);
-				
-				s = s.substring(source.getNextPosition());
-				
-				source.setContentString(s);
-			}else if(assignmentDFA.match(source)) {
-				String s = source.getContentString();
-				
-				Token token = new Token("ASSIGN", s.substring(0, source.getNextPosition()));
-				result.add(token);
-				
-				s = s.substring(source.getNextPosition());
-				
-				source.setContentString(s);
-			}else if(stringDFA.match(source)) {
-				String s = source.getContentString();
-				
-				Token token = new Token("LITERAL", s.substring(0, source.getNextPosition()));
-				result.add(token);
-				
-				s = s.substring(source.getNextPosition());
-				
-				source.setContentString(s);
-			}else if(floatDFA.match(source)) {
-				String s = source.getContentString();
-				
-				Token token = new Token("FLOAT", s.substring(0, source.getNextPosition()));
-				result.add(token);
-				
-				s = s.substring(source.getNextPosition());
-				
-				source.setContentString(s);
-			}else if(integerDFA.match(source)) {
-				String s = source.getContentString();
-				
-				Token token = new Token("INT", s.substring(0, source.getNextPosition()));
-				result.add(token);
-				
-				s = s.substring(source.getNextPosition());
-				
-				source.setContentString(s);
-			}else if(booleanDFA.match(source)) {
-				String s = source.getContentString();
-				
-				Token token = new Token("BOOL", s.substring(0, source.getNextPosition()));
-				result.add(token);
-				
-				s = s.substring(source.getNextPosition());
-				
-				source.setContentString(s);
-			}else if(terminateDFA.match(source)) {
-				String s = source.getContentString();
-				
-				Token token = new Token("SEMICOLON", s.substring(0, source.getNextPosition()));
-				result.add(token);
-				
-				s = s.substring(source.getNextPosition());
-				
-				source.setContentString(s);
-			}else if(arithmeticDFA.match(source)) {
-				String s = source.getContentString();
-				Token token;
-				
-				if(s.substring(0, source.getNextPosition()).equals("+")) {
-					token = new Token("ADD", s.substring(0, source.getNextPosition()));
-				}else if(s.substring(0, source.getNextPosition()).equals("-")) {
-					token = new Token("SUB", s.substring(0, source.getNextPosition()));
-				}else if(s.substring(0, source.getNextPosition()).equals("*")) {
-					token = new Token("MUL", s.substring(0, source.getNextPosition()));
-				}else{
-					token = new Token("DIV", s.substring(0, source.getNextPosition()));
-				}
-				
-				result.add(token);
-				
-				s = s.substring(source.getNextPosition());
-				
-				source.setContentString(s);
-			}else if(comparisonDFA.match(source)) {
-				String s = source.getContentString();
-				
-				Token token = new Token("COMPARISON", s.substring(0, source.getNextPosition()));
-				result.add(token);
-				
-				s = s.substring(source.getNextPosition());
-				
-				source.setContentString(s);
-			}else if(bitwiseDFA.match(source)) {
-				String s = source.getContentString();
-				
-				Token token = new Token("BITWISE", s.substring(0, source.getNextPosition()));
-				result.add(token);
-				
-				s = s.substring(source.getNextPosition());
-				
-				source.setContentString(s);
 			}else {
+				/* not belong to any DFA */
 				result.clear();
 				
 				throw new LexicalException(source.getErrorMessage(), source.getErrorPosition());
@@ -210,6 +132,80 @@ public class Lexer {
 		}
 	}
 	
+	/**
+	 * Token processing method for storing the token object in the correct form.
+	 * 
+	 * @param tokenName -Token name to which each token value corresponds
+	 * @param source - InputString object where input c source file content is stored
+	 */
+	private void tokenProcessing(String tokenName, InputString source) {
+		String s = source.getContentString();
+		Token token;
+		
+		if(tokenName.equals("variable") || tokenName.equals("statement")) {
+			
+			token = new Token(s.substring(0, source.getNextPosition()).toUpperCase(), s.substring(0, source.getNextPosition()));
+			
+			result.add(token);
+		}else if(tokenName.equals("paren")) {
+			
+			if(s.substring(0, source.getNextPosition()).equals("(")) {
+				
+				token = new Token("LPAREN", s.substring(0, source.getNextPosition()));
+			}else {
+				
+				token = new Token("RPAREN", s.substring(0, source.getNextPosition()));
+			}
+			
+			result.add(token);
+		}else if(tokenName.equals("block")) {
+			
+			if(s.substring(0, source.getNextPosition()).equals("{")) {
+				
+				token = new Token("LBLOCK", s.substring(0, source.getNextPosition()));
+			}else {
+				
+				token = new Token("RBLOCK", s.substring(0, source.getNextPosition()));
+			}
+			
+			result.add(token);
+		}else if(tokenName.equals("arithmetic")) {
+			
+			if(s.substring(0, source.getNextPosition()).equals("+")) {
+				
+				token = new Token("ADD", s.substring(0, source.getNextPosition()));
+			}else if(s.substring(0, source.getNextPosition()).equals("-")) {
+				
+				token = new Token("SUB", s.substring(0, source.getNextPosition()));
+			}else if(s.substring(0, source.getNextPosition()).equals("*")) {
+				
+				token = new Token("MUL", s.substring(0, source.getNextPosition()));
+			}else{
+				
+				token = new Token("DIV", s.substring(0, source.getNextPosition()));
+			}
+			
+			result.add(token);
+		}else {
+			
+			if(!tokenName.equals("whitespace")) {
+				
+				token = new Token(tokenName, s.substring(0, source.getNextPosition()));
+				
+				result.add(token);
+			}
+		}
+		
+		s = s.substring(source.getNextPosition());
+		
+		source.setContentString(s);
+	}
+	
+	/**
+	 * Method to initialize each declared DFA.
+	 * 
+	 * @see compiler.lexical.lexer.DFA
+	 */
 	private void initDFA() {
 		
 		/* Variable type DFA initialize */
@@ -267,7 +263,7 @@ public class Lexer {
 										"D,E,1,2,3,4,5,6,7,8,9", "D,F,0",
 										"E,E,0,1,2,3,4,5,6,7,8,9", "E,G,.",
 										"F,G,.",
-										"G,H,0",
+										"G,H,0,1,2,3,4,5,6,7,8,9",
 										"H,I,0", "H,H,1,2,3,4,5,6,7,8,9",
 										"I,I,0", "I,H,1,2,3,4,5,6,7,8,9" };
 		
