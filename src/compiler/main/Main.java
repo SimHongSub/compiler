@@ -1,7 +1,7 @@
 package compiler.main;
 
 import compiler.exception.LexicalException;
-import compiler.lexical.filesystem.FileProcessing;
+import compiler.filesystem.FileProcessing;
 import compiler.lexical.lexer.Lexer;
 import compiler.lexical.token.InputString;
 

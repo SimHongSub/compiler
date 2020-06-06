@@ -1,4 +1,4 @@
-package compiler.lexical.filesystem;
+package compiler.filesystem;
 
 import java.io.BufferedWriter;
 import java.io.File;
