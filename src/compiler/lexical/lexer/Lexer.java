@@ -65,7 +65,7 @@ public class Lexer {
 				
 			}else if(identifierDFA.match(source, result)) {
 				/* identifier check */
-				tokenProcessing("ID", source);
+				tokenProcessing("id", source);
 				
 			}else if(variableDFA.match(source, result)) {
 				/* variable check */
@@ -81,35 +81,35 @@ public class Lexer {
 				
 			}else if(separateDFA.match(source, result)) {
 				/* separate check */
-				tokenProcessing("COMMA", source);
+				tokenProcessing("comma", source);
 				
 			}else if(blockDFA.match(source, result)) {
 				/* block check */
-				tokenProcessing("block", source);
+				tokenProcessing("brace", source);
 				
 			}else if(assignmentDFA.match(source, result)) {
 				/* assignment check */
-				tokenProcessing("ASSIGN", source);
+				tokenProcessing("assign", source);
 				
 			}else if(stringDFA.match(source, result)) {
 				/* string check */
-				tokenProcessing("LITERAL", source);
+				tokenProcessing("literal", source);
 				
 			}else if(floatDFA.match(source, result)) {
 				/* float check */
-				tokenProcessing("FLOAT", source);
+				tokenProcessing("float", source);
 				
 			}else if(integerDFA.match(source, result)) {
 				/* integer check */
-				tokenProcessing("INT", source);
+				tokenProcessing("num", source);
 				
 			}else if(booleanDFA.match(source, result)) {
 				/* boolean check */
-				tokenProcessing("BOOL", source);
+				tokenProcessing("bool", source);
 				
 			}else if(terminateDFA.match(source, result)) {
 				/* terminate check */
-				tokenProcessing("SEMICOLON", source);
+				tokenProcessing("semi", source);
 				
 			}else if(arithmeticDFA.match(source, result)) {
 				/* arithmetic check */
@@ -117,11 +117,11 @@ public class Lexer {
 				
 			}else if(comparisonDFA.match(source, result)) {
 				/* comparison check */
-				tokenProcessing("COMPARISON", source);
+				tokenProcessing("comp", source);
 				
 			}else if(bitwiseDFA.match(source, result)) {
 				/* whitespace check */
-				tokenProcessing("BITWISE", source);
+				tokenProcessing("bitwise", source);
 				
 			}else {
 				/* not belong to any DFA */
@@ -142,47 +142,53 @@ public class Lexer {
 		String s = source.getContentString();
 		Token token;
 		
-		if(tokenName.equals("variable") || tokenName.equals("statement")) {
+		if(tokenName.equals("variable")) {
 			
-			token = new Token(s.substring(0, source.getNextPosition()).toUpperCase(), s.substring(0, source.getNextPosition()));
+			token = new Token("vtype", s.substring(0, source.getNextPosition()));
 			
 			result.add(token);
+		}else if(tokenName.equals("statement")){
+			
+			token = new Token(s.substring(0, source.getNextPosition()), s.substring(0, source.getNextPosition()));
+			
+			result.add(token);
+			
 		}else if(tokenName.equals("paren")) {
 			
 			if(s.substring(0, source.getNextPosition()).equals("(")) {
 				
-				token = new Token("LPAREN", s.substring(0, source.getNextPosition()));
+				token = new Token("lparen", s.substring(0, source.getNextPosition()));
 			}else {
 				
-				token = new Token("RPAREN", s.substring(0, source.getNextPosition()));
+				token = new Token("rparen", s.substring(0, source.getNextPosition()));
 			}
 			
 			result.add(token);
-		}else if(tokenName.equals("block")) {
+		}else if(tokenName.equals("brace")) {
 			
 			if(s.substring(0, source.getNextPosition()).equals("{")) {
 				
-				token = new Token("LBLOCK", s.substring(0, source.getNextPosition()));
+				token = new Token("lbrace", s.substring(0, source.getNextPosition()));
 			}else {
 				
-				token = new Token("RBLOCK", s.substring(0, source.getNextPosition()));
+				token = new Token("rbrace", s.substring(0, source.getNextPosition()));
 			}
 			
 			result.add(token);
 		}else if(tokenName.equals("arithmetic")) {
 			
-			if(s.substring(0, source.getNextPosition()).equals("+")) {
+			if(s.substring(0, source.getNextPosition()).equals("+") || s.substring(0, source.getNextPosition()).equals("-")) {
 				
-				token = new Token("ADD", s.substring(0, source.getNextPosition()));
-			}else if(s.substring(0, source.getNextPosition()).equals("-")) {
+				token = new Token("addsub", s.substring(0, source.getNextPosition()));
+			}/*else if(s.substring(0, source.getNextPosition()).equals("-")) {
 				
-				token = new Token("SUB", s.substring(0, source.getNextPosition()));
+				token = new Token("addsub", s.substring(0, source.getNextPosition()));
 			}else if(s.substring(0, source.getNextPosition()).equals("*")) {
 				
-				token = new Token("MUL", s.substring(0, source.getNextPosition()));
-			}else{
+				token = new Token("multdiv", s.substring(0, source.getNextPosition()));
+			}*/else{
 				
-				token = new Token("DIV", s.substring(0, source.getNextPosition()));
+				token = new Token("multdiv", s.substring(0, source.getNextPosition()));
 			}
 			
 			result.add(token);
