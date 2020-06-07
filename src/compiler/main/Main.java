@@ -1,9 +1,11 @@
 package compiler.main;
 
 import compiler.exception.LexicalException;
+import compiler.exception.SyntaxException;
 import compiler.filesystem.FileProcessing;
 import compiler.lexical.lexer.Lexer;
 import compiler.lexical.token.InputString;
+import compiler.syntax.syntaxer.Syntaxer;
 
 /** 
  * Main class for lexer testing.
@@ -22,6 +24,7 @@ public class Main {
 		 * (*)SourceCode - InputString object to save input c source file content.
 		 */
 		Lexer lexer = new Lexer();
+		Syntaxer syntaxer = new Syntaxer();
 		
 		FileProcessing fileProcessing = new FileProcessing("correct_source.c");
 		InputString correctSourceCode = new InputString(fileProcessing.readFile());
@@ -36,6 +39,13 @@ public class Main {
 		fileProcessing.writeFile(lexer, "correct_output.txt");
 		
 		System.out.println("correct_output.txt created!!!\n");
+		
+		try {
+			syntaxer.analysis(lexer.getTokens());
+		}catch (SyntaxException e) {
+			
+		}
+		
 		
 		fileProcessing = new FileProcessing("error_source.c");
 		InputString errorSourceCode = new InputString(fileProcessing.readFile());
