@@ -43,6 +43,9 @@ public class DFA {
 			String from = pieces[0], to = pieces[1];
 			if (!transitions.containsKey(from)) transitions.put(from, new TreeMap<Character,String>());
 			for (int i=2; i<pieces.length; i++) {
+				if(pieces[i].equals("comma")) {
+					pieces[i] = ",";
+				}
 				transitions.get(from).put(pieces[i].charAt(0), to);				
 			}
 		}
