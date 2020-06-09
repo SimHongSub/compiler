@@ -1,6 +1,5 @@
 package compiler.syntax.syntaxer;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,14 +27,13 @@ public class Syntaxer {
 		stack = new Stack<String>();
 		syntaxInput = "";
 		
-		stack.push("1");
+		stack.push("0");
 		initTable();
 	}
 	
 	public void analysis(List<Token> tokens) throws SyntaxException {
 		
-		ArrayList<Integer> blankIndexs = new ArrayList<Integer>();
-		int fromIndex = 0, idx = 0;
+		int fromIndex = 0;
 		
 		String state = stack.peek();
 		
@@ -50,61 +48,6 @@ public class Syntaxer {
 		}
 		
 		syntaxInput += " $";
-		
-		/*while(true) {
-			int blankIndex = syntaxInput.indexOf(" ", fromIndex);
-			
-			if(blankIndex != -1) {
-				blankIndexs.add(blankIndex);
-				
-				fromIndex = blankIndex + 1;
-			}else {
-				break;
-			}
-		}
-		
-		blankIndexs.add(syntaxInput.length() + 1);
-		
-		fromIndex = 0;
-		int previousBeginIndex = 0;
-		int previousEndIndex = 0;*/
-		
-		/*for(int i=0; i< syntaxInput.length(); i++) {
-			if(syntaxInput.charAt(i) == ' ') {
-				String key = syntaxInput.substring(fromIndex, i);
-				
-				if (!parsingTable.get(state).containsKey(key)) {
-					System.out.println("reject!");
-					
-					break;
-				}
-				
-				String nextState = parsingTable.get(state).get(key);
-				
-				try {
-					Integer.parseInt(nextState);
-					
-					stack.add(nextState);
-					previousBeginIndex = fromIndex;
-					previousEndIndex = i;
-					fromIndex = i + 1;
-					state = stack.peek();
-					//idx++;	
-				}catch (NumberFormatException e) {
-					if(nextState.equals("accept")) {
-						System.out.println("accept!");
-						
-						break;
-					}else {
-						reduce(nextState, i);
-						
-						stack.pop();
-						fromIndex = previousBeginIndex;
-						i = previousEndIndex - 1;
-					}
-				}
-			}
-		}*/
 		
 		while(true) {
 			
@@ -123,32 +66,6 @@ public class Syntaxer {
 			String key = syntaxInput.substring(fromIndex, blankIndex);
 			
 			if (!parsingTable.get(state).containsKey(key)) {
-				/* String preInput;
-				String nexInput;*/
-				/* e 처리*/
-				/*if((state.equals("4") && key.equals("$")) || (state.equals("5") && key.equals("$"))) {
-					preInput = syntaxInput.substring(0, fromIndex);
-					
-					syntaxInput = preInput + "CODE " + key;
-				}else if(state.equals("13") && key.equals("rparen")) {
-					preInput = syntaxInput.substring(0, fromIndex);
-					nexInput = syntaxInput.substring(fromIndex, syntaxInput.length());
-					
-					syntaxInput = preInput + "ARG" + nexInput;
-				}else if((state.equals("15") && key.equals("$")) || (state.equals("23") && key.equals("$"))) {
-					preInput = syntaxInput.substring(0, fromIndex);
-					
-					syntaxInput = preInput + "MOREARGS " + key;
-				}else if(state.equals("19") && key.equals("RETURN")) {
-					preInput = syntaxInput.substring(0, fromIndex);
-					nexInput = syntaxInput.substring(fromIndex, syntaxInput.length());
-					
-					syntaxInput = preInput + "BLOCK" + nexInput;
-				}else if(state.equals("22") && key.equals("$")) {
-					preInput = syntaxInput.substring(0, fromIndex);
-					
-					syntaxInput = preInput + "BLOCK " + key;
-				}*/
 				
 				System.out.println("reject!");
 				
@@ -162,14 +79,13 @@ public class Syntaxer {
 					stack.add(nextState);
 					fromIndex = blankIndex + 1;
 					state = stack.peek();
-					//idx++;	
 				}catch (NumberFormatException e) {
 					if(nextState.equals("accept")) {
 						System.out.println("accept!");
 						
 						break;
 					}else {
-						HashMap<String, Integer> map = reduce(nextState, blankIndex + 1);
+						HashMap<String, Integer> map = reduce(state, key, nextState, blankIndex);
 						fromIndex = map.get("changeIndex");
 						
 						for(int i=0;i<map.get("popLength");i++) {
@@ -184,32 +100,44 @@ public class Syntaxer {
 		
 	}
 	
-	public void psrsing(List<Token> tokens) {
-		
-	}
-	
-	private HashMap<String, Integer> reduce(String cfg, int index) {
+	private HashMap<String, Integer> reduce(String state, String key, String cfg, int index) {
 		String[] pieces = cfg.split("->");
 		String from = pieces[0], to = pieces[1];
-		int popLength;
-		int changeIndex = syntaxInput.lastIndexOf(to, index);
+		int popLength = 0;
+		int changeIndex = 0;
+		String previousString;
+		String nextString;
+		String indexString;
 		
 		if(to.equals(" ")) {
-			popLength = 0;
+			if(state.equals("2") || state.equals("3")) {
+				indexString = syntaxInput.substring(0, index);
+				changeIndex = indexString.lastIndexOf(to, index);
+				previousString = syntaxInput.substring(0, changeIndex);
+				nextString = syntaxInput.substring(changeIndex + to.length(), syntaxInput.length());
+				
+				syntaxInput = previousString + " " + from + " " + nextString;
+				
+				changeIndex++;
+			}else{
+				indexString = syntaxInput.substring(0, index);
+				changeIndex = indexString.lastIndexOf(key, index);
+				previousString = syntaxInput.substring(0, changeIndex);
+				nextString = syntaxInput.substring(changeIndex, syntaxInput.length());
+				
+				syntaxInput = previousString + from + " " + nextString;
+			}
 		}else {
 			String[] temp = to.split(" ");
 			
-			popLength = temp.length;	
+			popLength = temp.length;
+			indexString = syntaxInput.substring(0, index);
+			changeIndex = indexString.lastIndexOf(to, index);
+			previousString = syntaxInput.substring(0, changeIndex);
+			nextString = syntaxInput.substring(changeIndex + to.length(), syntaxInput.length());
+			
+			syntaxInput = previousString + from + nextString;
 		}
-		
-		String previousString = syntaxInput.substring(0, changeIndex);
-		String nextString = syntaxInput.substring(changeIndex + to.length(), syntaxInput.length());
-		
-		syntaxInput = previousString + from + nextString;
-		
-		System.out.println(syntaxInput);
-		
-		
 		
 		HashMap<String, Integer> map = new HashMap<String, Integer>();
 		
@@ -220,7 +148,7 @@ public class Syntaxer {
 		
 	}
 	
-	private void initTable() {
+	private void initTable() {	
 		String[] state = {"0,vtype,4", "0,$,CODE-> ", "0,CODE,1", "0,VDECL,2", "0,FDECL,3",
 				  "1,$,accept",
 				  "2,vtype,4", "2,$,CODE-> ", "2,CODE,5", "2,VDECL,2", "2,FDECL,3",
