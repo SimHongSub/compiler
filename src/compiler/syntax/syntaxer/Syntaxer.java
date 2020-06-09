@@ -10,6 +10,13 @@ import java.util.TreeMap;
 import compiler.exception.SyntaxException;
 import compiler.lexical.token.Token;
 
+/** 
+ * Class that check c source code syntax.
+ * 
+ * @date 2020.06.09
+ * @author SimHongSub
+ * @version 1.0
+ */
 public class Syntaxer {
 	
 	private Map<String, Map<String, String>> parsingTable;
