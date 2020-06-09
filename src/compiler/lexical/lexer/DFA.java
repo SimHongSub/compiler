@@ -106,6 +106,25 @@ public class DFA {
 					return true;
 				}
 				
+			}else if(this.type == "comparison") {
+				try {
+					if (!transitions.get(state).containsKey(c)) {
+						if (tempPosition == -1) {
+
+							return false;
+						}
+					}
+						
+					state = transitions.get(state).get(c);
+					
+					if(ends.contains(state)) {
+						tempPosition = i+1;
+					}
+				}catch(NullPointerException e) {
+					source.setNextPosition(tempPosition);
+					
+					return true;
+				}
 			}else {
 				if (!transitions.get(state).containsKey(c)) {
 					source.setErrorPosition(i+1);
