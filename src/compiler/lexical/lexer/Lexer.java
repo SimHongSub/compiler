@@ -87,11 +87,11 @@ public class Lexer {
 				/* block check */
 				tokenProcessing("brace", source);
 				
-			}else if(assignmentDFA.match(source, result)) {
-				/* assignment check */
+			}/*else if(assignmentDFA.match(source, result)) {
+				assignment check
 				tokenProcessing("assign", source);
 				
-			}else if(stringDFA.match(source, result)) {
+			}*/else if(stringDFA.match(source, result)) {
 				/* string check */
 				tokenProcessing("literal", source);
 				
@@ -122,6 +122,10 @@ public class Lexer {
 			}else if(bitwiseDFA.match(source, result)) {
 				/* whitespace check */
 				tokenProcessing("bitwise", source);
+				
+			}else if(assignmentDFA.match(source, result)) {
+				/* assignment check */
+				tokenProcessing("assign", source);
 				
 			}else {
 				/* not belong to any DFA */
@@ -354,7 +358,7 @@ public class Lexer {
 		
 		/* Separating symbol DFA initialize */
 		String[] separateState = { "A,S", "B,E" };
-		String[] separateTransition = { "A,B,," };
+		String[] separateTransition = { "A,B,comma" };
 		
 		separateDFA = new DFA(separateState, separateTransition, "separate");
 		
