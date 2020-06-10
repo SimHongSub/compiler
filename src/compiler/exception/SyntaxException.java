@@ -1,5 +1,7 @@
 package compiler.exception;
 
+import java.util.ArrayList;
+
 /** 
  * Class responsible for syntax analyzer exception.
  * 
@@ -14,8 +16,9 @@ public class SyntaxException extends Exception {
 	 */
 	private String message;
 
-	public SyntaxException(String state, String input, String syntaxString, int index) {
+	public SyntaxException(String state, String input, ArrayList<String> tokens, int index) {
 		String inputCase;
+		String syntax = "|";
 		
 		if(Character.isUpperCase(input.charAt(0))) {
 			inputCase = "GOTO";
@@ -23,11 +26,11 @@ public class SyntaxException extends Exception {
 			inputCase = "ACTION";
 		}
 		
-		String temp = syntaxString.substring(0, index);
+		for(int i=index; i<tokens.size(); i++) {
+			syntax += " " + tokens.get(i);
+		}
 		
-		syntaxString = temp + "| " + syntaxString.substring(index, syntaxString.length());
-		
-		message = "\nBar progress : " + syntaxString + "\nError state : " + state + "\nCase : " + inputCase + "\ninput : " + input;
+		message = "\nBar progress : " + syntax + "\nError state : " + state + "\nCase : " + inputCase + "\ninput : " + input;
 	}
 	
 	/**
