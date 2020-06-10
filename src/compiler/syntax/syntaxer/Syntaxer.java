@@ -1,5 +1,6 @@
 package compiler.syntax.syntaxer;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,32 +44,21 @@ public class Syntaxer {
 	 */
 	public void analysis(List<Token> tokens) throws SyntaxException {
 		
-		int fromIndex = 0, blankIndex = 0;	
-		String state = stack.peek();
-		String key;
+		ArrayList<String> tokenNames = new ArrayList<String>();
 		
-		generateString(tokens);
+		initNameList(tokens, tokenNames);
+		
+		int bar = 0;
+		String state, key;
 		
 		while(true) {
-			for(int i=fromIndex; i<syntaxInput.length(); i++) {
-				if(syntaxInput.charAt(i) == ' ') {
-					blankIndex = i;
-					break;
-				}else if(i == syntaxInput.length() - 1) {
-					blankIndex = syntaxInput.length();
-					break;
-				}
-			}
+			state = stack.peek();
+			key = tokenNames.get(bar);
 			
-			key = syntaxInput.substring(fromIndex, blankIndex);
-			
-			if (!parsingTable.get(state).containsKey(key)) {
-				
+			if(!parsingTable.get(state).containsKey(key)) {
 				System.out.println("reject!");
 				
-				throw new SyntaxException(state, key, syntaxInput, fromIndex);
-				
-				//break;
+				throw new SyntaxException(state, key, tokenNames, bar);
 			}else {
 				String nextState = parsingTable.get(state).get(key);
 				
@@ -76,27 +66,19 @@ public class Syntaxer {
 					Integer.parseInt(nextState);
 					
 					stack.add(nextState);
-					fromIndex = blankIndex + 1;
-					state = stack.peek();
+					bar++;
 				}catch (NumberFormatException e) {
 					if(nextState.equals("accept")) {
 						System.out.println("accept!");
 						
 						break;
 					}else {
-						HashMap<String, Integer> map = reduce(state, key, nextState, blankIndex);
-						fromIndex = map.get("changeIndex");
 						
-						for(int i=0;i<map.get("popLength");i++) {
-							stack.pop();
-						}
-						
-						state = stack.peek();
+						reduce(nextState, tokenNames, bar);
 					}
 				}
 			}
 		}
-		
 	}
 	
 	/**
@@ -108,46 +90,15 @@ public class Syntaxer {
 	 * @param index - next input start index(blankIndex)
 	 * @return map
 	 */
-	private HashMap<String, Integer> reduce(String state, String key, String cfg, int index) {
+	private void reduce(String cfg, ArrayList<String> tokenNames, int index) {
 		String[] pieces = cfg.split("->");
 		String from = pieces[0], to = pieces[1];
-		int popLength = 0, changeIndex = 0;
-		String previousString, nextString;
-		String currentString = syntaxInput.substring(0, index);
-		HashMap<String, Integer> map = new HashMap<String, Integer>();
 		
-		if(to.equals(" ")) {
-			if(state.equals("2") || state.equals("3")) {
-				changeIndex = currentString.lastIndexOf(to, index);
-				previousString = syntaxInput.substring(0, changeIndex + 1);
-				nextString = syntaxInput.substring(changeIndex + to.length() - 1, syntaxInput.length());
-				
-				syntaxInput = previousString + from + nextString;
-				
-				changeIndex++;
-			}else{
-				changeIndex = currentString.lastIndexOf(key, index);
-				previousString = syntaxInput.substring(0, changeIndex);
-				nextString = syntaxInput.substring(changeIndex - 1, syntaxInput.length());
-				
-				syntaxInput = previousString + from + nextString;
-			}
-		}else {
-			String[] temp = to.split(" ");
-			
-			popLength = temp.length;
-			changeIndex = currentString.lastIndexOf(to, index);
-			previousString = syntaxInput.substring(0, changeIndex);
-			nextString = syntaxInput.substring(changeIndex + to.length(), syntaxInput.length());
-			
-			syntaxInput = previousString + from + nextString;
+		tokenNames.add(index, from);
+		
+		for(int i=0;i<to.split(" ").length;i++) {
+			stack.pop();
 		}
-		
-		map.put("changeIndex", changeIndex);
-		map.put("popLength", popLength);
-		
-		return map;
-		
 	}
 	
 	/**
@@ -155,18 +106,14 @@ public class Syntaxer {
 	 * 
 	 * @param tokens - Tokens created as a result of lexical analysis
 	 */
-	private void generateString(List<Token> tokens) {
+	private void initNameList(List<Token> tokens, ArrayList<String> tokenNames) {
 		for(int i=0; i<tokens.size(); i++) {
 			Token token = tokens.get(i);
 			
-			if(i == 0) {
-				syntaxInput += token.getTokenName();
-			}else {
-				syntaxInput += " " + token.getTokenName();
-			}
+			tokenNames.add(token.getTokenName());
 		}
 		
-		syntaxInput += " $";
+		tokenNames.add("$");
 	}
 	
 	/**
@@ -271,3 +218,4 @@ public class Syntaxer {
 	}
 
 }
+
