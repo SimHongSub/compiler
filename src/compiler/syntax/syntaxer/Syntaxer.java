@@ -17,7 +17,11 @@ import compiler.lexical.token.Token;
  * @version 1.0
  */
 public class Syntaxer {
-	
+	/**
+	 * parsingTable - SLR parsing table
+	 * stack - Data structure to save the current state
+	 * syntaxInput - String to consist of token name
+	 */
 	private Map<String, Map<String, String>> parsingTable;
 	private Stack<String> stack;
 	private String syntaxInput;
@@ -31,18 +35,21 @@ public class Syntaxer {
 		initTable();
 	}
 	
+	/**
+	 * Method to syntax analysis for syntaxInput.
+	 * 
+	 * @param tokens - Tokens created as a result of lexical analysis
+	 * @exception SyntaxException.
+	 */
 	public void analysis(List<Token> tokens) throws SyntaxException {
 		
-		int fromIndex = 0;
-		
+		int fromIndex = 0, blankIndex = 0;	
 		String state = stack.peek();
+		String key;
 		
 		generateString(tokens);
-			
+		
 		while(true) {
-			
-			int blankIndex = 0;
-			
 			for(int i=fromIndex; i<syntaxInput.length(); i++) {
 				if(syntaxInput.charAt(i) == ' ') {
 					blankIndex = i;
@@ -53,13 +60,15 @@ public class Syntaxer {
 				}
 			}
 			
-			String key = syntaxInput.substring(fromIndex, blankIndex);
+			key = syntaxInput.substring(fromIndex, blankIndex);
 			
 			if (!parsingTable.get(state).containsKey(key)) {
 				
 				System.out.println("reject!");
 				
-				break;
+				throw new SyntaxException(state, key, syntaxInput, fromIndex);
+				
+				//break;
 			}else {
 				String nextState = parsingTable.get(state).get(key);
 				
@@ -90,46 +99,49 @@ public class Syntaxer {
 		
 	}
 	
+	/**
+	 * Method to replace syntax string to fit CFG grammar.
+	 * 
+	 * @param state - current state
+	 * @param key - input source token name
+	 * @param cfg - CFG Grammar to reduce
+	 * @param index - next input start index(blankIndex)
+	 * @return map
+	 */
 	private HashMap<String, Integer> reduce(String state, String key, String cfg, int index) {
 		String[] pieces = cfg.split("->");
 		String from = pieces[0], to = pieces[1];
-		int popLength = 0;
-		int changeIndex = 0;
-		String previousString;
-		String nextString;
-		String indexString;
+		int popLength = 0, changeIndex = 0;
+		String previousString, nextString;
+		String currentString = syntaxInput.substring(0, index);
+		HashMap<String, Integer> map = new HashMap<String, Integer>();
 		
 		if(to.equals(" ")) {
 			if(state.equals("2") || state.equals("3")) {
-				indexString = syntaxInput.substring(0, index);
-				changeIndex = indexString.lastIndexOf(to, index);
-				previousString = syntaxInput.substring(0, changeIndex);
-				nextString = syntaxInput.substring(changeIndex + to.length(), syntaxInput.length());
+				changeIndex = currentString.lastIndexOf(to, index);
+				previousString = syntaxInput.substring(0, changeIndex + 1);
+				nextString = syntaxInput.substring(changeIndex + to.length() - 1, syntaxInput.length());
 				
-				syntaxInput = previousString + " " + from + " " + nextString;
+				syntaxInput = previousString + from + nextString;
 				
 				changeIndex++;
 			}else{
-				indexString = syntaxInput.substring(0, index);
-				changeIndex = indexString.lastIndexOf(key, index);
+				changeIndex = currentString.lastIndexOf(key, index);
 				previousString = syntaxInput.substring(0, changeIndex);
-				nextString = syntaxInput.substring(changeIndex, syntaxInput.length());
+				nextString = syntaxInput.substring(changeIndex - 1, syntaxInput.length());
 				
-				syntaxInput = previousString + from + " " + nextString;
+				syntaxInput = previousString + from + nextString;
 			}
 		}else {
 			String[] temp = to.split(" ");
 			
 			popLength = temp.length;
-			indexString = syntaxInput.substring(0, index);
-			changeIndex = indexString.lastIndexOf(to, index);
+			changeIndex = currentString.lastIndexOf(to, index);
 			previousString = syntaxInput.substring(0, changeIndex);
 			nextString = syntaxInput.substring(changeIndex + to.length(), syntaxInput.length());
 			
 			syntaxInput = previousString + from + nextString;
 		}
-		
-		HashMap<String, Integer> map = new HashMap<String, Integer>();
 		
 		map.put("changeIndex", changeIndex);
 		map.put("popLength", popLength);
@@ -151,11 +163,16 @@ public class Syntaxer {
 				syntaxInput += token.getTokenName();
 			}else {
 				syntaxInput += " " + token.getTokenName();
-		}
+			}
 		}
 		
 		syntaxInput += " $";
 	}
+	
+	/**
+	 * Method to initialize SLR parsing table.
+	 *
+	 */
 	private void initTable() {	
 		String[] state = {"0,vtype,4", "0,$,CODE-> ", "0,CODE,1", "0,VDECL,2", "0,FDECL,3",
 				  "1,$,accept",
