@@ -26,58 +26,30 @@ public class Main {
 		Lexer lexer = new Lexer();
 		Syntaxer syntaxer = new Syntaxer();
 		
-		FileProcessing fileProcessing = new FileProcessing("correct_source.c");
+		FileProcessing fileProcessing = new FileProcessing("source.c");
 		InputString correctSourceCode = new InputString(fileProcessing.readFile());
 		
 		try {
 			lexer.tokenize(correctSourceCode);
-		} catch (LexicalException e) {
-			fileProcessing.writeFile(e);
-			e.printStackTrace();
-		}
-		
-		fileProcessing.writeFile(lexer, "correct_output.txt");
-		
-		System.out.println("correct_output.txt created!!!\n");
-		
-		try {
-			syntaxer.analysis(lexer.getTokens());
-		}catch (SyntaxException e) {
 			
-		}
-		
-		
-		fileProcessing = new FileProcessing("error_source.c");
-		InputString errorSourceCode = new InputString(fileProcessing.readFile());
-		
-		try {
-			lexer.tokenize(errorSourceCode);
+			fileProcessing.writeFile(lexer, "correct_output.txt");
+			
+			System.out.println("correct_output.txt created.\n");
+			
+			try {
+				syntaxer.analysis(lexer.getTokens());
+			}catch (SyntaxException e) {
+				
+			}
 		} catch (LexicalException e) {
 			fileProcessing.writeFile(e);
+			
+			System.out.println("error_output.txt created.\n");
+			
 			e.printStackTrace();
+			
 		}
 	}
-	
-	/**
-	 * The method to print lexer token list.
-	 * 
-	 * @param lexer - Current lexer object
-	 */
-	/*private static void printTokens(Lexer lexer) {
-		
-		System.out.println("-------Print tokens-------");
-		
-		List<Token> tokens = lexer.getTokens();
-		
-		if(tokens.size() != 0) {
-			System.out.println("Token name : Token value");
-			
-			for(int i=0;i<tokens.size();i++) {
-				Token token = tokens.get(i);
-				System.out.println(token.getTokenName() + " : " + token.getTokenValue());
-			}
-		}
-	}*/
 }
 
 
