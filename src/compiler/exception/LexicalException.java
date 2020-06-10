@@ -24,7 +24,7 @@ public class LexicalException extends Exception {
 	/**
 	 * The get method to returns error token position.
 	 * 
-	 * @return tokenName
+	 * @return errorPosition
 	 */
 	public int getErrorPosition() {
 		return errorPosition;
@@ -33,7 +33,7 @@ public class LexicalException extends Exception {
 	/**
 	 * The get method to returns error message.
 	 * 
-	 * @return tokenName
+	 * @return message
 	 */
 	public String getMessage() {
 		return "\n" + message;
