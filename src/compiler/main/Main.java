@@ -20,19 +20,20 @@ public class Main {
 		
 		/**
 		 * lexer - Lexer object to test.
+		 * syntaxer - Syntaxer object to test.
 		 * fileProcessing - FileProcessing object to read .c source file.
-		 * (*)SourceCode - InputString object to save input c source file content.
+		 * sourceCode - InputString object to save input c source file content.
 		 */
 		Lexer lexer = new Lexer();
 		Syntaxer syntaxer = new Syntaxer();
 		
 		FileProcessing fileProcessing = new FileProcessing("source.c");
-		InputString correctSourceCode = new InputString(fileProcessing.readFile());
+		InputString sourceCode = new InputString(fileProcessing.readFile());
 		
 		try {
-			lexer.tokenize(correctSourceCode);
+			lexer.tokenize(sourceCode);
 			
-			fileProcessing.writeFile(lexer, "correct_output.txt");
+			fileProcessing.writeFile(lexer, "lexer_correct_output.txt");
 			
 			System.out.println("correct_output.txt created.\n");
 			
@@ -44,7 +45,7 @@ public class Main {
 		} catch (LexicalException e) {
 			fileProcessing.writeFile(e);
 			
-			System.out.println("error_output.txt created.\n");
+			System.out.println("lexer_error_output.txt created.\n");
 			
 			e.printStackTrace();
 			
