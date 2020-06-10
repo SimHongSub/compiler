@@ -186,18 +186,18 @@ public class DFA {
 	private boolean classifyArithmetic(List<Token> tokens, int tempPosition, InputString source) {
 		Token token = tokens.get(tokens.size() - 1);
 		
-		if(token.getTokenName().equals("INT")||token.getTokenName().equals("FLOAT")||token.getTokenName().equals("ID")) {
+		if(token.getTokenName().equals("int")||token.getTokenName().equals("float")||token.getTokenName().equals("id")) {
 			
 			return false;
 		}else {
-			if(token.getTokenName().equals("RPAREN")) {
+			if(token.getTokenName().equals("rparen")) {
 				int countLPAREN = 0;
 				int countRPAREN = 0;
 				
 				for(Token temp : tokens) {
-					if(temp.getTokenName().equals("LPAREN")) {
+					if(temp.getTokenName().equals("lparen")) {
 						countLPAREN++;
-					}else if(temp.getTokenName().equals("RPAREN")) {
+					}else if(temp.getTokenName().equals("rparen")) {
 						countRPAREN++;
 					}
 				}
