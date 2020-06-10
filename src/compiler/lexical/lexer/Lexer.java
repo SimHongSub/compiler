@@ -184,13 +184,7 @@ public class Lexer {
 			if(s.substring(0, source.getNextPosition()).equals("+") || s.substring(0, source.getNextPosition()).equals("-")) {
 				
 				token = new Token("addsub", s.substring(0, source.getNextPosition()));
-			}/*else if(s.substring(0, source.getNextPosition()).equals("-")) {
-				
-				token = new Token("addsub", s.substring(0, source.getNextPosition()));
-			}else if(s.substring(0, source.getNextPosition()).equals("*")) {
-				
-				token = new Token("multdiv", s.substring(0, source.getNextPosition()));
-			}*/else{
+			}else{
 				
 				token = new Token("multdiv", s.substring(0, source.getNextPosition()));
 			}
