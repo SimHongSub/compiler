@@ -40,7 +40,7 @@ public class Main {
 			try {
 				syntaxer.analysis(lexer.getTokens());
 			}catch (SyntaxException e) {
-				
+				e.printStackTrace();
 			}
 		} catch (LexicalException e) {
 			fileProcessing.writeFile(e);
