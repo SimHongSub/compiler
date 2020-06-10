@@ -37,18 +37,8 @@ public class Syntaxer {
 		
 		String state = stack.peek();
 		
-		for(int i=0; i<tokens.size(); i++) {
-			Token token = tokens.get(i);
+		generateString(tokens);
 			
-			if(i == 0) {
-				syntaxInput += token.getTokenName();
-			}else {
-				syntaxInput += " " + token.getTokenName();
-			}
-		}
-		
-		syntaxInput += " $";
-		
 		while(true) {
 			
 			int blankIndex = 0;
@@ -148,6 +138,24 @@ public class Syntaxer {
 		
 	}
 	
+	/**
+	 * Method to generate string to consist of token name.
+	 * 
+	 * @param tokens - Tokens created as a result of lexical analysis
+	 */
+	private void generateString(List<Token> tokens) {
+		for(int i=0; i<tokens.size(); i++) {
+			Token token = tokens.get(i);
+			
+			if(i == 0) {
+				syntaxInput += token.getTokenName();
+			}else {
+				syntaxInput += " " + token.getTokenName();
+		}
+		}
+		
+		syntaxInput += " $";
+	}
 	private void initTable() {	
 		String[] state = {"0,vtype,4", "0,$,CODE-> ", "0,CODE,1", "0,VDECL,2", "0,FDECL,3",
 				  "1,$,accept",
