@@ -16,7 +16,7 @@ public class SyntaxException extends Exception {
 	 */
 	private String message;
 
-	public SyntaxException(String state, String input, ArrayList<String> tokens, int index) {
+	public SyntaxException(String state, String input, ArrayList<String> keywords, int index) {
 		String inputCase;
 		String syntax = "|";
 		
@@ -26,8 +26,8 @@ public class SyntaxException extends Exception {
 			inputCase = "ACTION";
 		}
 		
-		for(int i=index; i<tokens.size(); i++) {
-			syntax += " " + tokens.get(i);
+		for(int i=index; i<keywords.size(); i++) {
+			syntax += " " + keywords.get(i);
 		}
 		
 		message = "\nBar progress : " + syntax + "\nError state : " + state + "\nCase : " + inputCase + "\ninput : " + input;

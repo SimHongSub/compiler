@@ -25,12 +25,10 @@ public class Syntaxer {
 	 */
 	private Map<String, Map<String, String>> parsingTable;
 	private Stack<String> stack;
-	private String syntaxInput;
 	
 	public Syntaxer() {
 		parsingTable = new TreeMap<String, Map<String, String>>();
 		stack = new Stack<String>();
-		syntaxInput = "";
 		
 		stack.push("0");
 		initTable();
@@ -44,21 +42,21 @@ public class Syntaxer {
 	 */
 	public void analysis(List<Token> tokens) throws SyntaxException {
 		
-		ArrayList<String> tokenNames = new ArrayList<String>();
+		ArrayList<String> keywords = new ArrayList<String>();
 		
-		initNameList(tokens, tokenNames);
+		initKeywordList(tokens, keywords);
 		
 		int bar = 0;
 		String state, key;
 		
 		while(true) {
 			state = stack.peek();
-			key = tokenNames.get(bar);
+			key = keywords.get(bar);
 			
 			if(!parsingTable.get(state).containsKey(key)) {
 				System.out.println("reject!");
 				
-				throw new SyntaxException(state, key, tokenNames, bar);
+				throw new SyntaxException(state, key, keywords, bar);
 			}else {
 				String nextState = parsingTable.get(state).get(key);
 				
@@ -74,7 +72,7 @@ public class Syntaxer {
 						break;
 					}else {
 						
-						reduce(nextState, tokenNames, bar);
+						reduce(nextState, keywords, bar);
 					}
 				}
 			}
@@ -106,14 +104,14 @@ public class Syntaxer {
 	 * 
 	 * @param tokens - Tokens created as a result of lexical analysis
 	 */
-	private void initNameList(List<Token> tokens, ArrayList<String> tokenNames) {
+	private void initKeywordList(List<Token> tokens, ArrayList<String> keywords) {
 		for(int i=0; i<tokens.size(); i++) {
 			Token token = tokens.get(i);
 			
-			tokenNames.add(token.getTokenName());
+			keywords.add(token.getTokenName());
 		}
 		
-		tokenNames.add("$");
+		keywords.add("$");
 	}
 	
 	/**
