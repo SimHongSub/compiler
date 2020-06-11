@@ -21,7 +21,6 @@ public class Syntaxer {
 	/**
 	 * parsingTable - SLR parsing table
 	 * stack - Data structure to save the current state
-	 * syntaxInput - String to consist of token name
 	 */
 	private Map<String, Map<String, String>> parsingTable;
 	private Stack<String> stack;
@@ -43,11 +42,10 @@ public class Syntaxer {
 	public void analysis(List<Token> tokens) throws SyntaxException {
 		
 		ArrayList<String> keywords = new ArrayList<String>();
-		
-		initKeywordList(tokens, keywords);
-		
 		int bar = 0;
 		String state, key;
+		
+		initKeywordList(tokens, keywords);
 		
 		while(true) {
 			state = stack.peek();
@@ -82,17 +80,16 @@ public class Syntaxer {
 	/**
 	 * Method to replace syntax string to fit CFG grammar.
 	 * 
-	 * @param state - current state
-	 * @param key - input source token name
 	 * @param cfg - CFG Grammar to reduce
-	 * @param index - next input start index(blankIndex)
+	 * @param keywords - ArrayList to consist of token name
+	 * @param index - next input start index(bar index)
 	 * @return map
 	 */
-	private void reduce(String cfg, ArrayList<String> tokenNames, int index) {
+	private void reduce(String cfg, ArrayList<String> keywords, int index) {
 		String[] pieces = cfg.split("->");
 		String from = pieces[0], to = pieces[1];
 		
-		tokenNames.add(index, from);
+		keywords.add(index, from);
 		
 		for(int i=0;i<to.split(" ").length;i++) {
 			stack.pop();
@@ -103,6 +100,7 @@ public class Syntaxer {
 	 * Method to generate string to consist of token name.
 	 * 
 	 * @param tokens - Tokens created as a result of lexical analysis
+	 * @param keywords - ArrayList to save the token names
 	 */
 	private void initKeywordList(List<Token> tokens, ArrayList<String> keywords) {
 		for(int i=0; i<tokens.size(); i++) {
